@@ -9,9 +9,8 @@ router = APIRouter()
 
 
 def validate_youtube_url(url: str) -> bool:
-    pattern = r"^(https?://)?(www\.)?(youtube\.com/watch\?v=|youtu\.be/)[A-Za-z0-9_-]{11}"
-    short_pattern = r"^[A-Za-z0-9_-]{11}$" # если просто id (yQebXIkBAws)
-    return bool(re.match(pattern, url) or re.match(short_pattern, url))
+    pattern = r"^(https?://)?(www\.)?(youtube\.com/watch\?v=|youtu\.be/)[A-Za-z0-9_-]{11}(\?.*)?$"
+    return bool(re.match(pattern, url))
 
 
 @router.post("/download")

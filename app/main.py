@@ -1,11 +1,11 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import FileResponse
-from contextlib import asynccontextmanager
+
 from app.api.routes import router
 from app.services.queue_service import init_queue, close_queue
-import os
 
 
 @asynccontextmanager

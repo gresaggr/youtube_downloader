@@ -1,13 +1,4 @@
-// Храним таймеры для каждой задачи
-const taskTimers = new Map();
-
-// Очистка таблицы и таймеров при загрузке страницы
-document.addEventListener('DOMContentLoaded', () => {
-    const tasksBody = document.getElementById('tasks-body');
-    tasksBody.innerHTML = ''; // Очищаем таблицу
-    taskTimers.clear(); // Очищаем таймеры
-    console.log('Page loaded, tasksBody and taskTimers cleared');
-});
+console.log('Script loaded');
 
 async function addTask() {
     const url = document.querySelector('.url-input').value;
@@ -20,35 +11,35 @@ async function addTask() {
     });
     const data = await response.json();
 
+    if (!response.ok) {
+        alert(data.detail || "Failed to add task");
+        return;
+    }
+
     const tasksBody = document.getElementById('tasks-body');
     const taskRow = document.createElement('tr');
-    taskRow.dataset.taskId = data.task_id; // Сохраняем task_id в строке
+    taskRow.dataset.taskId = data.task_id;
     taskRow.innerHTML = `
         <td class="url"><a href="${url}" target="_blank">${url}</a></td>
         <td class="title">Loading title...</td>
         <td><span class="status">${data.status}</span></td>
         <td><div class="download-link"></div></td>
     `;
-    taskRow.dataset.checkStatusPause = data.check_status_pause;
+    taskRow.dataset.checkStatusPause = data.check_status_pause || 1000;
     tasksBody.appendChild(taskRow);
 
+    console.log(`Task added: ${data.task_id}`);
     checkStatus(data.task_id, taskRow);
 }
 
 async function checkStatus(taskId, taskRow) {
-    // Проверяем, что taskId соответствует строке, чтобы избежать старых вызовов
-    if (taskRow.dataset.taskId !== taskId) {
-        console.log(`Skipping checkStatus for outdated taskId: ${taskId}`);
-        return;
-    }
-
     const response = await fetch(`/status/${taskId}`);
     const data = await response.json();
+    console.log(`Status for ${taskId}:`, data);
+
     const statusSpan = taskRow.querySelector('.status');
     const downloadLinkDiv = taskRow.querySelector('.download-link');
     const titleCell = taskRow.querySelector('.title');
-
-    console.log(`Task ${taskId} status:`, data);
 
     statusSpan.textContent = data.status;
 
@@ -57,29 +48,16 @@ async function checkStatus(taskId, taskRow) {
     }
 
     const statusLower = data.status.toLowerCase();
-
-    if (statusLower === 'completed') {
-        if (data.download_url) {
-            downloadLinkDiv.innerHTML = `<a href="${data.download_url}" download>Download</a>`;
-            downloadLinkDiv.style.display = 'block';
-        }
-        if (taskTimers.has(taskId)) {
-            clearTimeout(taskTimers.get(taskId));
-            taskTimers.delete(taskId);
-        }
-    } else if (statusLower === 'processing') {
-        // Можно добавить индикатор, если нужно
-    } else if (statusLower.includes('error')) {
+    if (statusLower === 'completed' && data.download_url) {
+        downloadLinkDiv.innerHTML = `<a href="${data.download_url}" download>Download</a>`;
+        downloadLinkDiv.style.display = 'block';
+    } else if (statusLower === 'error') {
         statusSpan.style.color = 'red';
-        if (taskTimers.has(taskId)) {
-            clearTimeout(taskTimers.get(taskId));
-            taskTimers.delete(taskId);
+        if (data.error) {
+            statusSpan.title = data.error; // Показываем ошибку при наведении
         }
-    }
-
-    if (statusLower !== 'completed' && !statusLower.includes('error')) {
+    } else if (statusLower !== 'completed') {
         const pause = parseInt(taskRow.dataset.checkStatusPause, 10);
-        const timerId = setTimeout(() => checkStatus(taskId, taskRow), pause);
-        taskTimers.set(taskId, timerId);
+        setTimeout(() => checkStatus(taskId, taskRow), pause);
     }
 }
