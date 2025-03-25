@@ -9,8 +9,9 @@ router = APIRouter()
 
 
 def validate_youtube_url(url: str) -> bool:
-    pattern = r"^(https?\:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/(watch\?v=)?[A-Za-z0-9_-]{11}.*"
-    return bool(re.match(pattern, url))
+    pattern = r"^(https?://)?(www\.)?(youtube\.com/watch\?v=|youtu\.be/)[A-Za-z0-9_-]{11}"
+    short_pattern = r"^[A-Za-z0-9_-]{11}$" # если просто id (yQebXIkBAws)
+    return bool(re.match(pattern, url) or re.match(short_pattern, url))
 
 
 @router.post("/download")
@@ -20,7 +21,11 @@ async def start_download(task: DownloadTask):
     if task.format not in settings.SUPPORTED_FORMATS:
         raise HTTPException(status_code=400, detail="Invalid format")
     task_id = await add_task_to_queue(task)
-    return {"task_id": task_id, "status": "queued"}
+    return {
+        "task_id": task_id,
+        "status": "queued",
+        "check_status_pause": settings.CHECK_STATUS_PAUSE  # Добавляем задержку
+    }
 
 
 @router.get("/status/{task_id}")
