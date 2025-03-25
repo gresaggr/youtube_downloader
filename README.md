@@ -93,8 +93,7 @@ youtube_downloader/
 
 ## Настройка
 - Количество worker'ов: Измените replicas в docker-compose.yml (по умолчанию 3).
-- Параллельные задачи в worker'е: Настройте prefetch_count в app/worker.py (по умолчанию 3).
-- Поддерживаемые форматы: Измените SUPPORTED_FORMATS в app/core/config.py.
+- Параллельные задачи в worker'е: Настройте MAX_PREFETCH_COUNT в core/config.py (по умолчанию 3).
 ---
 
 ## Ограничения
