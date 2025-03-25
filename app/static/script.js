@@ -4,15 +4,15 @@ async function addTask() {
 
     const response = await fetch('/download', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url, format: type === 'audio' ? 'mp3' : 'mp4' })
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({url, format: type === 'audio' ? 'mp3' : 'mp4'})
     });
     const data = await response.json();
 
     const tasksBody = document.getElementById('tasks-body');
     const taskRow = document.createElement('tr');
     taskRow.innerHTML = `
-        <td class="url">${url}</td>
+        <td class="url"><a href="${url}" target="_blank">${url}</a></td>
         <td class="title">Loading title...</td>
         <td><span class="status">${data.status}</span></td>
         <td><div class="download-link"></div></td>

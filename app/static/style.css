@@ -83,6 +83,15 @@ button:hover {
     background-color: #f1f1f1;
 }
 
+.tasks-table .url a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.tasks-table .url a:hover {
+    text-decoration: underline;
+}
+
 .download-link {
     display: none;
 }
