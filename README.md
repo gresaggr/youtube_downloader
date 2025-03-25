@@ -87,8 +87,7 @@ youtube_downloader/
 
 ## Дополнительные команды
 - Просмотр логов worker'а: ```docker logs youtube_downloader-worker-1```
-- Панель управления RabbitMQ: 
-   - Доступна по адресу: http://localhost:15672 (логин/пароль: guest/guest)
+- Панель управления RabbitMQ доступна по адресу: http://localhost:15672 (логин/пароль: guest/guest)
 ---
 
 ## Настройка
